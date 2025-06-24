@@ -444,3 +444,31 @@ const muteVolume = function () {
 }
 
 playerVolumeBtn.addEventListener("click", muteVolume);
+
+
+// Touch gesture support for skipping tracks
+let touchStartX = 0;
+let touchEndX = 0;
+const player = document.querySelector('.player');
+
+if (player) {
+  player.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+
+  player.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleGesture();
+  });
+
+  function handleGesture() {
+    if (touchEndX < touchStartX - 50) {
+      // Swipe left: next track
+      document.querySelector('[data-skip-next]')?.click();
+    }
+    if (touchEndX > touchStartX + 50) {
+      // Swipe right: previous track
+      document.querySelector('[data-skip-prev]')?.click();
+    }
+  }
+}
