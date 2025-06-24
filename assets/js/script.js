@@ -225,6 +225,18 @@ const updateDuration = function () {
 
 audioSource.addEventListener("loadeddata", updateDuration);
 
+audioSource.addEventListener("ended", function () {
+  // Move to next song
+  lastPlayedMusic = currentMusic;
+  if (isShuffled) {
+    shuffleMusic();
+  } else {
+    currentMusic >= musicData.length - 1 ? currentMusic = 0 : currentMusic++;
+  }
+  changePlayerInfo();
+  changePlaylistItem();
+  audioSource.play(); // Start playing the next song automatically
+});
 
 
 /**
@@ -471,4 +483,136 @@ if (player) {
       document.querySelector('[data-skip-prev]')?.click();
     }
   }
+}
+
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    document.documentElement.classList.toggle('light-theme');
+    themeToggle.querySelector('span').textContent =
+      document.documentElement.classList.contains('light-theme') ? 'dark_mode' : 'light_mode';
+  });
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.like-btn')) {
+    const btn = e.target.closest('.like-btn');
+    btn.classList.toggle('liked');
+  }
+});
+
+const audio = document.querySelector('audio') || window.audio; // adjust as needed
+const canvas = document.getElementById('visualizer');
+if (audio && canvas) {
+  const ctx = canvas.getContext('2d');
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const analyser = audioCtx.createAnalyser();
+  const source = audioCtx.createMediaElementSource(audio);
+  source.connect(analyser);
+  analyser.connect(audioCtx.destination);
+  analyser.fftSize = 32;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+
+  function draw() {
+    requestAnimationFrame(draw);
+    analyser.getByteFrequencyData(dataArray);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const barWidth = (canvas.width / bufferLength) - 2;
+    for (let i = 0; i < bufferLength; i++) {
+      const barHeight = dataArray[i] / 2;
+      ctx.fillStyle = '#1976d2';
+      ctx.fillRect(i * (barWidth + 2), canvas.height - barHeight, barWidth, barHeight);
+    }
+  }
+  audio.onplay = () => audioCtx.resume();
+  draw();
+}
+
+const playbackSpeedSelect = document.getElementById('playback-speed');
+if (playbackSpeedSelect) {
+  playbackSpeedSelect.addEventListener('change', function () {
+    audioSource.playbackRate = parseFloat(this.value);
+  });
+  // Ensure speed resets on track change
+  audioSource.addEventListener('loadeddata', function () {
+    audioSource.playbackRate = parseFloat(playbackSpeedSelect.value);
+  });
+}
+
+// Keyboard shortcuts for desktop
+document.addEventListener('keydown', function(e) {
+  if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
+  switch (e.key.toLowerCase()) {
+    case ' ':
+      e.preventDefault();
+      playMusic();
+      break;
+    case 'arrowright':
+      audioSource.currentTime = Math.min(audioSource.currentTime + 5, audioSource.duration);
+      break;
+    case 'arrowleft':
+      audioSource.currentTime = Math.max(audioSource.currentTime - 5, 0);
+      break;
+    case 'arrowup':
+      audioSource.volume = Math.min(audioSource.volume + 0.1, 1);
+      changeVolume();
+      break;
+    case 'arrowdown':
+      audioSource.volume = Math.max(audioSource.volume - 0.1, 0);
+      changeVolume();
+      break;
+    case 'n':
+      skipNext();
+      break;
+    case 'p':
+      skipPrev();
+      break;
+    case 's':
+      shuffle();
+      break;
+    case 'r':
+      repeat.call(playerRepeatBtn);
+      break;
+    case 'f':
+      toggleFullScreen();
+      break;
+  }
+});
+
+// Fullscreen toggle
+function toggleFullScreen() {
+  const elem = document.documentElement;
+  if (!document.fullscreenElement) {
+    elem.requestFullscreen?.();
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+// Desktop notification on song change
+function showNotification(title, body) {
+  if (window.Notification && Notification.permission === "granted") {
+    new Notification(title, { body });
+  }
+}
+if (window.Notification && Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
+function notifySongChange() {
+  showNotification(musicData[currentMusic].title, musicData[currentMusic].artist);
+}
+audioSource.addEventListener("play", notifySongChange);
+
+const logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) {
+  if (!localStorage.getItem('currentUser')) {
+    logoutBtn.style.display = 'none';
+  } else {
+    logoutBtn.style.display = '';
+  }
+  logoutBtn.addEventListener('click', function() {
+    localStorage.removeItem('currentUser');
+    window.location.href = "auth.html";
+  });
 }

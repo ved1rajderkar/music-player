@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up / Login</title>
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" />
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1976d2 0%, #43cea2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-container {
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 8px 32px 0 rgba(31,38,135,0.2);
+      border-radius: 24px;
+      padding: 40px 32px 32px 32px;
+      max-width: 350px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      animation: fadeIn 0.8s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(40px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .auth-container h2 {
+      margin-bottom: 18px;
+      color: #1976d2;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .auth-container .input-group {
+      position: relative;
+      margin-bottom: 18px;
+    }
+    .auth-container input {
+      width: 100%;
+      padding: 12px 40px 12px 40px;
+      border-radius: 12px;
+      border: 1.5px solid #1976d2;
+      font-size: 1.1rem;
+      outline: none;
+      transition: border 0.2s;
+      background: #f7fafd;
+      color: #222;
+    }
+    .auth-container input:focus {
+      border: 2px solid #43cea2;
+    }
+    .auth-container .input-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #1976d2;
+      font-size: 1.5rem;
+      pointer-events: none;
+    }
+    .auth-container button {
+      width: 100%;
+      margin: 10px 0 0 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, #1976d2 60%, #43cea2 100%);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(67,206,162,0.08);
+    }
+    .auth-container button:hover {
+      background: linear-gradient(90deg, #43cea2 0%, #1976d2 100%);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .auth-container .guest-btn {
+      background: #fff;
+      color: #1976d2;
+      border: 1.5px solid #1976d2;
+      margin-top: 8px;
+      margin-bottom: 0;
+      transition: background 0.2s, color 0.2s;
+    }
+    .auth-container .guest-btn:hover {
+      background: #1976d2;
+      color: #fff;
+    }
+    .auth-container .switch-link {
+      color: #1976d2;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 16px;
+      display: inline-block;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+    .auth-container .switch-link:hover {
+      color: #43cea2;
+    }
+    .auth-logo {
+      font-size: 3rem;
+      color: #1976d2;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (max-width: 500px) {
+      .auth-container { padding: 24px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container" id="auth-container">
+    <div class="auth-logo">
+      <span class="material-symbols-rounded" style="font-size:3rem;">account_circle</span>
+    </div>
+    <h2 id="auth-title">Login</h2>
+    <form id="auth-form" autocomplete="on">
+      <div class="input-group">
+        <span class="material-symbols-rounded input-icon">person</span>
+        <input type="text" id="username" placeholder="Username" required autocomplete="username">
+      </div>
+      <div class="input-group">
+        <span class="material-symbols-rounded input-icon">lock</span>
+        <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+      </div>
+      <button type="submit" id="auth-btn">Login</button>
+    </form>
+    <button class="guest-btn" id="guest-btn" type="button">
+      <span class="material-symbols-rounded" style="vertical-align:middle;">person_search</span>
+      Continue as Guest
+    </button>
+    <div>
+      <span class="switch-link" id="switch-link">Don't have an account? Sign Up</span>
+    </div>
+  </div>
+  <script>
+    const authForm = document.getElementById('auth-form');
+    const authTitle = document.getElementById('auth-title');
+    const authBtn = document.getElementById('auth-btn');
+    const switchLink = document.getElementById('switch-link');
+    const guestBtn = document.getElementById('guest-btn');
+    let isLogin = true;
+
+    // Simple localStorage-based auth for demo
+    authForm.onsubmit = function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      if (isLogin) {
+        const stored = localStorage.getItem('user_' + username);
+        if (stored && JSON.parse(stored).password === password) {
+          localStorage.setItem('currentUser', username);
+          window.location.href = "index.html";
+        } else {
+          alert('Invalid credentials');
+        }
+      } else {
+        if (username.length < 3 || password.length < 3) {
+          alert('Username and password must be at least 3 characters.');
+          return;
+        }
+        localStorage.setItem('user_' + username, JSON.stringify({password}));
+        localStorage.setItem('currentUser', username);
+        window.location.href = "index.html";
+      }
+    };
+
+    switchLink.onclick = function() {
+      isLogin = !isLogin;
+      authTitle.textContent = isLogin ? "Login" : "Sign Up";
+      authBtn.textContent = isLogin ? "Login" : "Sign Up";
+      switchLink.textContent = isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
+    };
+
+    guestBtn.onclick = function() {
+      localStorage.setItem('currentUser', 'guest');
+      window.location.href = "index.html";
+    };
+  </script>
+</body>
+</html>

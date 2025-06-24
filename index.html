@@ -52,11 +52,15 @@
       <h1 class="title-lg">Music Player</h1>
     </div>
 
-    <div class="top-bar-actions">
-      <button class="btn-icon" data-playlist-toggler>
-        <span class="material-symbols-rounded">queue_music</span>
-      </button>
-    </div>
+    <!-- Add this where you want to show the user, e.g., in the top bar -->
+    <span id="current-user" class="label-md" style="margin-left:16px;"></span>
+    <button id="logout-btn" class="btn-icon" title="Logout" style="margin-left:8px;">
+      <span class="material-symbols-rounded">logout</span>
+    </button>
+    <script>
+      document.getElementById('current-user').textContent =
+        localStorage.getItem('currentUser') === 'guest' ? 'Guest' : localStorage.getItem('currentUser') || '';
+    </script>
 
   </div>
 
@@ -123,28 +127,36 @@
 
             <div class="player-control wrapper">
 
-              <button class="btn-icon toggle" data-repeat>
+              <button class="btn-icon toggle" data-repeat title="Repeat (R)">
                 <span class="material-symbols-rounded default-icon">repeat</span>
                 <span class="material-symbols-rounded active-icon">repeat_one</span>
               </button>
-
-              <button class="btn-icon" data-skip-prev>
+              <button class="btn-icon" data-skip-prev title="Previous (P)">
                 <span class="material-symbols-rounded">skip_previous</span>
               </button>
-
-              <button class="btn-icon play" data-play-btn>
+              <button class="btn-icon play" data-play-btn title="Play/Pause (Space)">
                 <span class="material-symbols-rounded default-icon">play_arrow</span>
                 <span class="material-symbols-rounded active-icon">pause</span>
               </button>
-
-              <button class="btn-icon" data-skip-next>
+              <button class="btn-icon" data-skip-next title="Next (N)">
                 <span class="material-symbols-rounded">skip_next</span>
               </button>
-
-              <button class="btn-icon toggle" data-shuffle>
+              <button class="btn-icon toggle" data-shuffle title="Shuffle (S)">
                 <span class="material-symbols-rounded">shuffle</span>
               </button>
 
+            </div>
+
+            <div class="playback-speed-control" style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+              <label for="playback-speed" class="label-md" style="min-width:80px;">Speed</label>
+              <select id="playback-speed" class="label-md" style="padding:4px 8px;border-radius:8px;">
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+              </select>
             </div>
 
           </div>
@@ -179,6 +191,14 @@
     - custom js link
   -->
   <script src="./assets/js/script.js"></script>
+  <script>
+    if (!localStorage.getItem('currentUser')) {
+      window.location.href = "auth.html";
+    }
+    if (!localStorage.getItem('currentUser') && logoutBtn) {
+      logoutBtn.style.display = 'none';
+    }
+  </script>
 
 </body>
 
