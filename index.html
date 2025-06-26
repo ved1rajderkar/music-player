@@ -52,11 +52,15 @@
       <h1 class="title-lg">Music Player</h1>
     </div>
 
-    <!-- Add this where you want to show the user, e.g., in the top bar -->
+      <button class="btn-icon" data-playlist-toggler>
+        <span class="material-symbols-rounded">queue_music</span>
+      </button>
+      <button id="logout-btn" class="btn-icon" title="Logout" style="margin-left:8px;">
+        <span class="material-symbols-rounded">logout</span>
+      </button>
+    </div>
+
     <span id="current-user" class="label-md" style="margin-left:16px;"></span>
-    <button id="logout-btn" class="btn-icon" title="Logout" style="margin-left:8px;">
-      <span class="material-symbols-rounded">logout</span>
-    </button>
     <script>
       document.getElementById('current-user').textContent =
         localStorage.getItem('currentUser') === 'guest' ? 'Guest' : localStorage.getItem('currentUser') || '';
@@ -183,9 +187,35 @@
     </article>
   </main>
 
+  <!-- Feedback Button -->
+  <button id="feedback-btn" class="btn-icon" title="Give Feedback"
+    style="position:fixed;bottom:24px;right:24px;z-index:999;background:#1976d2;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+    <span class="material-symbols-rounded">feedback</span>
+  </button>
 
-
-
+  <!-- Feedback Modal -->
+  <div id="feedback-modal"
+    style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;overflow:auto;">
+    <form id="feedback-form"
+      style="background:#fff;padding:24px 20px 16px 20px;border-radius:16px;max-width:340px;width:90vw;box-shadow:0 8px 32px 0 rgba(31,38,135,0.2);display:flex;flex-direction:column;gap:12px;position:relative;">
+      <span
+        style="font-size:1.3rem;font-weight:600;color:#1976d2;">Your Feedback</span>
+      <textarea id="feedback-text" rows="4" placeholder="Type your feedback here..."
+        required style="resize:none;padding:10px;border-radius:8px;border:1.5px solid #1976d2;font-size:1rem;"></textarea>
+      <input type="email" id="feedback-email" placeholder="Your email (optional)"
+        style="padding:8px;border-radius:8px;border:1px solid #ccc;font-size:1rem;">
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" id="feedback-cancel"
+          style="background:#eee;color:#1976d2;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;">Cancel</button>
+        <button type="submit"
+          style="background:#1976d2;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;">Send</button>
+      </div>
+      <span id="feedback-success"
+        style="display:none;color:green;font-size:0.95rem;margin-top:4px;">Thank you for your feedback!</span>
+      <span id="feedback-close"
+        style="position:absolute;top:8px;right:12px;cursor:pointer;font-size:1.3rem;color:#1976d2;">&times;</span>
+    </form>
+  </div>
 
   <!-- 
     - custom js link
@@ -198,6 +228,43 @@
     if (!localStorage.getItem('currentUser') && logoutBtn) {
       logoutBtn.style.display = 'none';
     }
+
+    // Feedback button and modal functionality
+    const feedbackBtn = document.getElementById('feedback-btn');
+    const feedbackModal = document.getElementById('feedback-modal');
+    const feedbackClose = document.getElementById('feedback-close');
+    const feedbackCancel = document.getElementById('feedback-cancel');
+    const feedbackForm = document.getElementById('feedback-form');
+    const feedbackSuccess = document.getElementById('feedback-success');
+
+    feedbackBtn.addEventListener('click', () => {
+      feedbackModal.style.display = 'flex';
+    });
+
+    feedbackClose.addEventListener('click', () => {
+      feedbackModal.style.display = 'none';
+    });
+
+    feedbackCancel.addEventListener('click', () => {
+      feedbackModal.style.display = 'none';
+    });
+
+    feedbackForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const feedbackText = document.getElementById('feedback-text').value;
+      const feedbackEmail = document.getElementById('feedback-email').value;
+
+      // Here you can add the code to send the feedback to your server or email
+
+      feedbackText.value = '';
+      feedbackEmail.value = '';
+      feedbackSuccess.style.display = 'block';
+
+      setTimeout(() => {
+        feedbackModal.style.display = 'none';
+        feedbackSuccess.style.display = 'none';
+      }, 2000);
+    });
   </script>
 
 </body>

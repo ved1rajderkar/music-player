@@ -616,3 +616,63 @@ if (logoutBtn) {
     window.location.href = "auth.html";
   });
 }
+
+const feedbackBtn = document.getElementById('feedback-btn');
+const feedbackModal = document.getElementById('feedback-modal');
+const feedbackClose = document.getElementById('feedback-close');
+const feedbackForm = document.getElementById('feedback-form');
+const feedbackSuccess = document.getElementById('feedback-success');
+
+feedbackBtn.addEventListener('click', () => {
+  feedbackModal.style.display = 'flex';
+});
+
+feedbackClose.addEventListener('click', () => {
+  feedbackModal.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+  if (e.target === feedbackModal) {
+    feedbackModal.style.display = 'none';
+  }
+});
+
+feedbackForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const feedbackText = document.getElementById('feedback-text').value;
+  const feedbackEmail = document.getElementById('feedback-email').value;
+
+  // Save feedback to localStorage
+  const allFeedback = JSON.parse(localStorage.getItem('userFeedback') || '[]');
+  allFeedback.push({
+    text: feedbackText,
+    email: feedbackEmail,
+    date: new Date().toISOString()
+  });
+  localStorage.setItem('userFeedback', JSON.stringify(allFeedback));
+
+  feedbackForm.reset();
+  feedbackSuccess.style.display = 'block';
+
+  setTimeout(() => {
+    feedbackModal.style.display = 'none';
+    feedbackSuccess.style.display = 'none';
+  }, 2000);
+});
+
+function logUserAction(action, details) {
+  const user = localStorage.getItem('currentUser') || 'guest';
+  const logs = JSON.parse(localStorage.getItem('userLogs') || '[]');
+  logs.push({
+    user,
+    action,
+    details,
+    date: new Date().toISOString()
+  });
+  localStorage.setItem('userLogs', JSON.stringify(logs));
+}
+
+// Example: log when a song is played
+audioSource.addEventListener('play', function() {
+  logUserAction('play', { song: musicData[currentMusic].title });
+});
